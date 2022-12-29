@@ -16,6 +16,10 @@
 #define GUNZIP
 #endif
 
+#if !defined(BUILDFIXED)
+#define BUILDFIXED
+#endif
+
 /* Possible inflate modes between inflate() calls */
 typedef enum {
 	HEAD = 16180, /* i: waiting for magic header */
