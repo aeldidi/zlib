@@ -152,7 +152,7 @@ local void send_all_trees OF(
 local void compress_block  OF((deflate_state * s, const ct_data* ltree,
                 const ct_data* dtree));
 local int detect_data_type OF((deflate_state * s));
-local unsigned bi_reverse  OF((unsigned code, int len));
+local unsigned bi_reverse  OF((unsigned bi_code, int len));
 local void bi_windup       OF((deflate_state * s));
 local void bi_flush        OF((deflate_state * s));
 
@@ -1209,14 +1209,14 @@ deflate_state* s;
  * IN assertion: 1 <= len <= 15
  */
 local unsigned
-	 bi_reverse(code, len)
-unsigned code; /* the value to invert */
-int      len;  /* its bit length */
+	 bi_reverse(bi_code, len)
+unsigned bi_code; /* the value to invert */
+int      len;     /* its bit length */
 {
 	register unsigned res = 0;
 	do {
-		res |= code & 1;
-		code >>= 1, res <<= 1;
+		res |= bi_code & 1;
+		bi_code >>= 1, res <<= 1;
 	} while (--len > 0);
 	return res >> 1;
 }
