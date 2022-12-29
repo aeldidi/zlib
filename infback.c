@@ -16,7 +16,7 @@
 #include "zutil.h"
 
 /* function prototypes */
-local void fixedtables OF((struct inflate_state FAR * state));
+local void infback_fixedtables OF((struct inflate_state FAR * state));
 
 /*
    strm provides memory allocation functions in zalloc and zfree, or
@@ -82,7 +82,7 @@ int                stream_size;
    used for threaded applications, since the rewriting of the tables and virgin
    may not be thread-safe.
  */
-local void fixedtables(state) struct inflate_state FAR* state;
+local void infback_fixedtables(state) struct inflate_state FAR* state;
 {
 #ifdef BUILDFIXED
 	static int   virgin = 1;
@@ -319,7 +319,7 @@ void FAR* out_desc;
 				state->mode = STORED;
 				break;
 			case 1: /* fixed block */
-				fixedtables(state);
+				infback_fixedtables(state);
 				Tracev((stderr,
 						"inflate:     fixed codes "
 						"block%s\n",
