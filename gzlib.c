@@ -71,17 +71,17 @@ DWORD error;
 /* Reset gzip file state */
 local void gz_reset(state) gz_statep state;
 {
-	state->x.have = 0;            /* no output data available */
-	if (state->mode == GZ_READ) { /* for reading ... */
-		state->eof  = 0;      /* not at end of file */
-		state->past = 0;      /* have not read past end yet */
-		state->how  = LOOK;   /* look for gzip header */
-	} else                        /* for writing ... */
-		state->reset = 0;     /* no deflateReset pending */
-	state->seek = 0;              /* no seek request pending */
-	gz_error(state, Z_OK, NULL);  /* clear error */
-	state->x.pos         = 0;     /* no uncompressed data yet */
-	state->strm.avail_in = 0;     /* no input data yet */
+	state->x.have = 0;             /* no output data available */
+	if (state->mode == GZ_READ) {  /* for reading ... */
+		state->eof  = 0;       /* not at end of file */
+		state->past = 0;       /* have not read past end yet */
+		state->how  = GZ_LOOK; /* look for gzip header */
+	} else                         /* for writing ... */
+		state->reset = 0;      /* no deflateReset pending */
+	state->seek = 0;               /* no seek request pending */
+	gz_error(state, Z_OK, NULL);   /* clear error */
+	state->x.pos         = 0;      /* no uncompressed data yet */
+	state->strm.avail_in = 0;      /* no input data yet */
 }
 
 /* Open a gzip file either by name or file descriptor. */
@@ -396,7 +396,7 @@ int       whence;
 	state->seek = 0;
 
 	/* if within raw area while reading, just go there */
-	if (state->mode == GZ_READ && state->how == COPY &&
+	if (state->mode == GZ_READ && state->how == GZ_COPY &&
 			state->x.pos + offset >= 0) {
 		ret = LSEEK(state->fd, offset - (z_off64_t)state->x.have,
 				SEEK_CUR);

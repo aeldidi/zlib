@@ -146,7 +146,6 @@ amalgamate_file(const char* dir, const char* file, FILE* f, size_t* hashes_len,
 {
 	char* filename = format("%s/%s", dir, file);
 	assert(filename != NULL);
-	printf("filename = %s\n", filename);
 	char* content = (char*)readfull(filename);
 	assert(content != NULL);
 	free(filename);

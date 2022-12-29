@@ -143,7 +143,7 @@ gz_statep state;
 	if (strm->avail_in > 1 && strm->next_in[0] == 31 &&
 			strm->next_in[1] == 139) {
 		inflateReset(strm);
-		state->how    = GZIP;
+		state->how    = GZ_GZIP;
 		state->direct = 0;
 		return 0;
 	}
@@ -164,14 +164,14 @@ gz_statep state;
 	memcpy(state->x.next, strm->next_in, strm->avail_in);
 	state->x.have  = strm->avail_in;
 	strm->avail_in = 0;
-	state->how     = COPY;
+	state->how     = GZ_COPY;
 	state->direct  = 1;
 	return 0;
 }
 
 /* Decompress from input to the provided next_out and avail_out in the state.
    On return, state->x.have and state->x.next point to the just decompressed
-   data.  If the gzip stream completes, state->how is reset to LOOK to look for
+   data.  If the gzip stream completes, state->how is reset to GZ_LOOK to look for
    the next gzip stream or raw data, once state->x.have is depleted.  Returns 0
    on success, -1 on failure. */
 local int
@@ -220,7 +220,7 @@ gz_statep state;
 
 	/* if the gzip stream completed successfully, look for another */
 	if (ret == Z_STREAM_END)
-		state->how = LOOK;
+		state->how = GZ_LOOK;
 
 	/* good decompression */
 	return 0;
@@ -240,19 +240,19 @@ gz_statep state;
 
 	do {
 		switch (state->how) {
-		case LOOK: /* -> LOOK, COPY (only if never GZIP), or GZIP */
+		case GZ_LOOK: /* -> GZ_LOOK, GZ_COPY (only if never GZ_GZIP), or GZ_GZIP */
 			if (gz_look(state) == -1)
 				return -1;
-			if (state->how == LOOK)
+			if (state->how == GZ_LOOK)
 				return 0;
 			break;
-		case COPY: /* -> COPY */
+		case GZ_COPY: /* -> GZ_COPY */
 			if (gz_load(state, state->out, state->size << 1,
 					    &(state->x.have)) == -1)
 				return -1;
 			state->x.next = state->out;
 			return 0;
-		case GZIP: /* -> GZIP or LOOK (if end of gzip stream) */
+		case GZ_GZIP: /* -> GZ_GZIP or GZ_LOOK (if end of gzip stream) */
 			strm->avail_out = state->size << 1;
 			strm->next_out  = state->out;
 			if (gz_decomp(state) == -1)
@@ -346,7 +346,7 @@ z_size_t  len;
 
 		/* need output data -- for small len or new stream load up our output
            buffer */
-		else if (state->how == LOOK || n < (state->size << 1)) {
+		else if (state->how == GZ_LOOK || n < (state->size << 1)) {
 			/* get more output, looking for header if required */
 			if (gz_fetch(state) == -1)
 				return 0;
@@ -356,7 +356,7 @@ z_size_t  len;
 		}
 
 		/* large len -- read directly into user buffer */
-		else if (state->how == COPY) { /* read directly */
+		else if (state->how == GZ_COPY) { /* read directly */
 			if (gz_load(state, (unsigned char*)buf, n, &n) == -1)
 				return 0;
 		}
@@ -636,7 +636,8 @@ gzFile file;
 
 	/* if the state is not known, but we can find out, then do so (this is
        mainly for right after a gzopen() or gzdopen()) */
-	if (state->mode == GZ_READ && state->how == LOOK && state->x.have == 0)
+	if (state->mode == GZ_READ && state->how == GZ_LOOK &&
+			state->x.have == 0)
 		(void)gz_look(state);
 
 	/* return 1 if transparent, 0 if processing a gzip stream */

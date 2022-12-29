@@ -162,9 +162,9 @@ ZEXTERN z_off64_t ZEXPORT gzoffset64 OF((gzFile));
 #define GZ_APPEND 1 /* mode set to GZ_WRITE after the file is opened */
 
 /* values for gz_state how */
-#define LOOK 0 /* look for a gzip header */
-#define COPY 1 /* copy input directly */
-#define GZIP 2 /* decompress a gzip stream */
+#define GZ_LOOK 0 /* look for a gzip header */
+#define GZ_COPY 1 /* copy input directly */
+#define GZ_GZIP 2 /* decompress a gzip stream */
 
 /* internal gzip file state data structure */
 typedef struct {
