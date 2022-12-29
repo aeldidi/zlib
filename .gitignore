@@ -24,3 +24,7 @@
 /configure.log
 
 .DS_Store
+
+amalgamate
+zlib_amalgamated.c
+zlib_amalgamated.h
